@@ -11,6 +11,7 @@
   "description": "",
   "workspaces": [
     "packages/database",
-    "packages/api"
+    "packages/api",
+    "packages/web"
   ]
 }
