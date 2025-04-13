@@ -1,5 +1,5 @@
 {
-  "name": "jam-shelf",
+  "name": "api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "workspaces": [
-    "packages/database",
-    "packages/api"
-  ]
+  "dependencies": {
+    "@hono/swagger-ui": "^0.5.1",
+    "@hono/zod-openapi": "^0.19.4"
+  }
 }
