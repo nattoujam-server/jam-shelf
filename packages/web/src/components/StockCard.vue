@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   clickPlus: []
+  clickEdit: []
   clickMinus: []
 }>()
 
@@ -29,6 +30,10 @@ const clickMinus = () => {
   loading.value = true
   setTimeout(() => (loading.value = false), 100)
   emits('clickMinus')
+}
+
+const clickEdit = () => {
+  emits('clickEdit')
 }
 
 const clickPlus = () => {
@@ -55,7 +60,7 @@ const clickPlus = () => {
     </div>
     <footer class="card-footer">
       <button class="card-footer-item" :disabled="minusDisabled" @click="clickMinus">-1</button>
-      <button class="card-footer-item" @click="">Edit</button>
+      <button class="card-footer-item" @click="clickEdit">Edit</button>
       <button class="card-footer-item" :disabled="loading" @click="clickPlus">+1</button>
     </footer>
   </div>
