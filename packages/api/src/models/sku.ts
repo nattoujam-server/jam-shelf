@@ -1,5 +1,8 @@
 import { z } from "@hono/zod-openapi";
 
+/**
+ * read
+ */
 export const SkuSchema = z
   .object({
     id: z.number().openapi({ example: 1 }),
@@ -8,6 +11,27 @@ export const SkuSchema = z
     unit: z.string().openapi({ example: "個" }),
     warnThreshold: z.number().min(1).openapi({ example: 3 }),
     dangerThreshold: z.number().min(0).openapi({ example: 1 }),
+  })
+  .openapi("SkuSchema");
+
+export const SkuListSchema = z.array(SkuSchema).openapi("SkuListSchema");
+
+/**
+ * update
+ */
+export const UpdateSkuParamSchema = z
+  .object({
+    skuId: z.string().openapi({ example: "1" }),
+  })
+  .openapi("UpdateSkuParamSchema");
+
+export const UpdateSkuRequestSchema = z
+  .object({
+    name: z.string().openapi({ example: "塩" }),
+    stock: z.number().min(0).openapi({ example: 5 }),
+    unit: z.string().openapi({ example: "袋" }),
+    warnThreshold: z.number().min(1).openapi({ example: 4 }),
+    dangerThreshold: z.number().min(0).openapi({ example: 2 }),
   })
   .refine(
     (args) => {
@@ -19,6 +43,4 @@ export const SkuSchema = z
       path: ["warnThreshold"],
     }
   )
-  .openapi("SkuSchema");
-
-export const SkuListSchema = z.array(SkuSchema).openapi("SkuListSchema");
+  .openapi("UpdateSkuRequestSchema");
