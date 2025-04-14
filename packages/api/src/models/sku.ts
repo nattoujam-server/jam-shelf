@@ -67,3 +67,12 @@ export const UpdateSkuRequestSchema = z
     }
   )
   .openapi("UpdateSkuRequestSchema");
+
+/**
+ * delete
+ */
+export const DeleteSkuParamSchema = z
+  .object({
+    skuId: z.string().openapi({ example: "1" }),
+  })
+  .openapi("DeleteSkuParamSchema");

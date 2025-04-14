@@ -4,6 +4,7 @@ import { PrismaClient } from "@database/generated/prisma";
 import { getSkuRoute } from "@/api/sku/get";
 import { updateSkuRoute } from "@/api/sku/update";
 import { createSkuRoute } from "@/api/sku/create";
+import { deleteSkuRoute } from "@/api/sku/delete";
 
 export const skuApi = new OpenAPIHono();
 
@@ -59,6 +60,23 @@ skuApi.openapi(updateSkuRoute, async (c) => {
       data: {
         ...body,
       },
+    });
+
+    return c.json(sku, 200);
+  } catch (e) {
+    return c.json(InternalServerErrorResponse(e), 500);
+  }
+});
+
+skuApi.openapi(deleteSkuRoute, async (c) => {
+  try {
+    const rawSkuId = c.req.valid("param").skuId;
+    const skuId = Number.parseInt(rawSkuId);
+    if (Number.isNaN(skuId))
+      throw new Error("[Invalid Argument Error] Must be number: ${rawSkuId}");
+
+    const sku = await prisma.sku.delete({
+      where: { id: skuId },
     });
 
     return c.json(sku, 200);
