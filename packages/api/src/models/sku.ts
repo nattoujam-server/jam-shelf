@@ -17,6 +17,29 @@ export const SkuSchema = z
 export const SkuListSchema = z.array(SkuSchema).openapi("SkuListSchema");
 
 /**
+ * create
+ */
+export const CreateSkuRequestSchema = z
+  .object({
+    name: z.string().openapi({ example: "醤油" }),
+    stock: z.number().min(0).openapi({ example: 3 }),
+    unit: z.string().openapi({ example: "本" }),
+    warnThreshold: z.number().min(1).openapi({ example: 2 }),
+    dangerThreshold: z.number().min(0).openapi({ example: 1 }),
+  })
+  .refine(
+    (args) => {
+      const { warnThreshold, dangerThreshold } = args;
+      return warnThreshold > dangerThreshold;
+    },
+    {
+      message: "注意の閾値は警告の閾値より大きくしてください",
+      path: ["warnThreshold"],
+    }
+  )
+  .openapi("CreateSkuRequestSchema");
+
+/**
  * update
  */
 export const UpdateSkuParamSchema = z

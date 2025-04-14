@@ -3,6 +3,7 @@ import { PrismaClient } from "@database/generated/prisma";
 
 import { getSkuRoute } from "@/api/sku/get";
 import { updateSkuRoute } from "@/api/sku/update";
+import { createSkuRoute } from "@/api/sku/create";
 
 export const skuApi = new OpenAPIHono();
 
@@ -24,6 +25,22 @@ skuApi.openapi(getSkuRoute, async (c) => {
     return c.json(skuList, 200);
   } catch (e) {
     console.error(e);
+    return c.json(InternalServerErrorResponse(e), 500);
+  }
+});
+
+skuApi.openapi(createSkuRoute, async (c) => {
+  try {
+    const body = c.req.valid("json");
+
+    const sku = await prisma.sku.create({
+      data: {
+        ...body,
+      },
+    });
+
+    return c.json(sku, 200);
+  } catch (e) {
     return c.json(InternalServerErrorResponse(e), 500);
   }
 });
