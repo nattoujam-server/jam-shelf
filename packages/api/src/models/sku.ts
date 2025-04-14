@@ -1,5 +1,7 @@
 import { z } from "@hono/zod-openapi";
 
+export type Sku = z.infer<typeof SkuSchema>;
+
 /**
  * read
  */
