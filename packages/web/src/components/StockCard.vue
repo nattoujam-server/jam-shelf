@@ -13,6 +13,7 @@ const emits = defineEmits<{
   clickPlus: []
   clickEdit: []
   clickMinus: []
+  clickDelete: []
 }>()
 
 const isWarn = computed(() => props.sku.stock <= props.sku.warnThreshold)
@@ -41,6 +42,10 @@ const clickPlus = () => {
   setTimeout(() => (loading.value = false), 100)
   emits('clickPlus')
 }
+
+const clickDelete = () => {
+  emits('clickDelete')
+}
 </script>
 
 <template>
@@ -48,7 +53,7 @@ const clickPlus = () => {
     <div class="card-header">
       <p class="card-header-title">category</p>
       <div class="card-header-icon">
-        <button class="delete"></button>
+        <button class="delete" @click="clickDelete"></button>
       </div>
     </div>
     <div class="card-content">

@@ -5,11 +5,25 @@ import type { Sku } from '@api/src/models/sku'
 import jamShelfApi from '@/utils/jamShelfApi'
 
 import StockCard from '@/components/StockCard.vue'
-import EditSkuModal from '@/components/modals/EditSkuModal.vue'
+import SkuModal from '@/components/modals/SkuModal.vue'
+import OkCancelModal from '@/components/modals/OkCancelModal.vue'
+import CreateIcon from '@/components/atoms/CreateIcon.vue'
+
+const INITIAL_SKU_PARAMS: Sku = {
+  id: 0,
+  name: '',
+  stock: 0,
+  unit: '',
+  warnThreshold: 2,
+  dangerThreshold: 1,
+}
 
 const skuList = ref<Array<Sku>>([])
-const editingSku = ref<Sku | undefined>(undefined)
+const skuInput = ref<Sku>({ ...INITIAL_SKU_PARAMS })
+const deleteSkuId = ref<number>(0)
+const isCreateModalOpen = ref<boolean>(false)
 const isEditModalOpen = ref<boolean>(false)
+const isDeleteModalOpen = ref<boolean>(false)
 
 const updateStock = async (index: number, add: number) => {
   const sku = skuList.value[index]
@@ -22,26 +36,61 @@ const updateStock = async (index: number, add: number) => {
   skuList.value[index] = res.data
 }
 
-const openEditSkuModal = (targetSku: Sku) => {
-  editingSku.value = { ...targetSku }
-  isEditModalOpen.value = true
+const openCreateSkuModal = () => (isCreateModalOpen.value = true)
+const closeCreateSkuModal = () => {
+  skuInput.value = { ...INITIAL_SKU_PARAMS }
+  console.log(INITIAL_SKU_PARAMS)
+  console.log(skuInput.value)
+  isCreateModalOpen.value = false
 }
 
+const openEditSkuModal = (targetSku: Sku) => {
+  skuInput.value = { ...targetSku }
+  isEditModalOpen.value = true
+}
 const closeEditSkuModal = () => {
+  skuInput.value = { ...INITIAL_SKU_PARAMS }
   isEditModalOpen.value = false
 }
 
-const editSku = async () => {
-  closeEditSkuModal()
+const createSku = async () => {
+  if (!skuInput.value) return
 
-  if (!editingSku.value) return
-
-  await jamShelfApi.put(`/sku/${editingSku.value.id}`, {
-    ...editingSku.value,
+  await jamShelfApi.post('/sku', {
+    ...skuInput.value,
   })
 
-  editingSku.value = undefined
+  closeCreateSkuModal()
 
+  await fetchSkuList()
+}
+
+const editSku = async () => {
+  if (!skuInput.value) return
+
+  await jamShelfApi.put(`/sku/${skuInput.value.id}`, {
+    ...skuInput.value,
+  })
+
+  closeEditSkuModal()
+
+  await fetchSkuList()
+}
+
+const openDeleteModal = (skuId: number) => {
+  deleteSkuId.value = skuId
+  isDeleteModalOpen.value = true
+}
+
+const closeDeleteModal = () => {
+  deleteSkuId.value = 0
+  isDeleteModalOpen.value = false
+}
+
+const deleteSku = async () => {
+  await jamShelfApi.delete(`/sku/${deleteSkuId.value}`)
+
+  closeDeleteModal()
   await fetchSkuList()
 }
 
@@ -62,16 +111,41 @@ fetchSkuList()
           @click-plus="() => updateStock(index, 1)"
           @click-edit="() => openEditSkuModal(sku)"
           @click-minus="() => updateStock(index, -1)"
+          @click-delete="() => openDeleteModal(sku.id)"
         />
       </div>
     </div>
+    <CreateIcon class="fixed-right-bottom" @click="openCreateSkuModal" />
     <Teleport to="body">
-      <EditSkuModal
+      <SkuModal
+        v-if="isCreateModalOpen"
+        title="在庫の新規作成"
+        v-model="skuInput"
+        @submit="createSku"
+        @close="closeCreateSkuModal"
+      />
+    </Teleport>
+    <Teleport to="body">
+      <SkuModal
         v-if="isEditModalOpen"
-        v-model="editingSku"
+        v-model="skuInput"
+        title="在庫の編集"
         @submit="editSku"
         @close="closeEditSkuModal"
       />
     </Teleport>
+    <Teleport to="body">
+      <OkCancelModal v-if="isDeleteModalOpen" @ok="deleteSku" @cancel="closeDeleteModal">
+        本当に削除しますか？
+      </OkCancelModal>
+    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.fixed-right-bottom {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+}
+</style>
